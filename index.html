@@ -205,6 +205,97 @@
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
         }
 
+        /* Base Desktop Settings: Hide mobile tools entirely on wide viewports */
+#menu-toggle {
+    display: none;
+}
+
+.hamburger-btn {
+    display: none;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 8px;
+    z-index: 101;
+}
+
+.hamburger-btn .bar {
+    display: block;
+    width: 22px;
+    height: 2px;
+    margin: 5px auto;
+    background-color: #4a2c3a; /* Deep Mauve Accent */
+    transition: all 0.3s ease-in-out;
+}
+
+/* Hide the duplicate mobile CTA button on standard desktop layout sizes */
+.nav-mobile-action {
+    display: none;
+}
+
+/* 📱 Responsive Mobile Viewport Breakpoint (768px or smaller) */
+@media screen and (max-width: 768px) {
+    .hamburger-btn {
+        display: block; /* Reveal button exclusively on smaller phone displays */
+    }
+
+    /* Hide standard desktop action frame to balance navbar header columns */
+    .nav-desktop-actions {
+        display: none;
+    }
+
+    /* Activate mobile view for internal action link components */
+    .nav-mobile-action {
+        display: block;
+        width: 100%;
+        text-align: center;
+        margin-top: 10px;
+    }
+
+    /* Transform menu link wrapper container into an invisible top-drop drawer layout */
+    .nav-menu {
+        position: fixed;
+        top: -100%; /* Positioned off-screen above the active frame grid window */
+        left: 0;
+        width: 100%;
+        background-color: #ffffff;
+        box-shadow: 0 4px 15px rgba(74, 44, 58, 0.05);
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: center;
+        gap: 25px;
+        padding: 110px 20px 40px 20px;
+        z-index: 100;
+        
+        /* Flawless invisibility settings until clicked */
+        opacity: 0;
+        visibility: hidden;
+        transition: top 0.4s ease-in-out, opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+    }
+
+    /* 💥 THE REVEAL: Bring container safely down from the top on active click */
+    #menu-toggle:checked ~ .nav-menu {
+        top: 0;
+        opacity: 1;
+        visibility: visible;
+    }
+
+    /* Morph three parallel bars into an "X" shape when menu opens */
+    #menu-toggle:checked ~ .hamburger-btn .bar:nth-child(1) {
+        transform: translateY(7px) rotate(45deg);
+    }
+
+    #menu-toggle:checked ~ .hamburger-btn .bar:nth-child(2) {
+        opacity: 0;
+    }
+
+    #menu-toggle:checked ~ .hamburger-btn .bar:nth-child(3) {
+        transform: translateY(-7px) rotate(-45deg);
+    }
+}
+
+
         /* ==========================================================================
            4. HERO BRANDING SCENE
            ========================================================================== */
@@ -844,14 +935,15 @@
                 <h3 class="modal-title">Join The Atelier</h3>
                 <p class="modal-desc">Subscribe to unlock lookbooks, sequence events, and exclusive seasonal capsules.</p>
             </div>
-            <form class="bespoke-form" onsubmit="event.preventDefault(); handleModalSubscription();">
+
+            <form action="subscribe.php" method="POST" id="newsletter-form" class="bespoke-form" onsubmit="event.preventDefault(); handleModalSubscription();">
                 <div class="form-group">
                     <label class="form-label">Email Address</label>
                     <input type="email" id="modal-email-input" required class="form-input" placeholder="name@domain.com">
                 </div>
                 <div>
                     <button type="submit" class="form-submit-btn">
-                        Request Allocation Access
+                        SUBSCRIBE
                     </button>
                 </div>
             </form>
@@ -859,26 +951,45 @@
     </div>
 
     <nav id="navbar" class="fixed-navbar">
-        <div class="nav-container">
-            <a href="#" class="nav-logo">MAISON ÉCLAT</a>
-            <div class="nav-menu">
-                <a href="#hero" class="nav-link">Home</a>
-                <li class="nav-item dropdown">
-                    <a href="catalog.html" class="nav-link">Collections</a>
-                    <div class="dropdown-menu">
-                        <a href="catalog.html#clothing" class="dropdown-item">Ready-To-Wear</a>
-                        <a href="catalog.html#accessories" class="dropdown-item">Accessories</a>
-                    </div>
-                </li>
+    <div class="nav-container">
+        <a href="#" class="nav-logo">MAISON ÉCLAT</a>
+        
+        <!-- Hidden checkbox selector utility -->
+        <input type="checkbox" id="menu-toggle">
+        
+        <!-- Luxury 3-line hamburger trigger icon -->
+        <label for="menu-toggle" class="hamburger-btn" aria-label="Toggle Navigation Menu">
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
+        </label>
 
-                <a href="#testimonials" class="nav-link">Reviews</a>
-                <a href="#contact" class="nav-link">Contact</a>
-            </div>
-            <div>
+        <!-- Dynamic Drop-Down Menu Drawer -->
+        <div class="nav-menu">
+            <a href="#hero" class="nav-link">Home</a>
+            <li class="nav-item dropdown">
+                <a href="catalog.html" class="nav-link">Collections</a>
+                <div class="dropdown-menu">
+                    <a href="catalog.html#clothing" class="dropdown-item">Ready-To-Wear</a>
+                    <a href="catalog.html#accessories" class="dropdown-item">Accessories</a>
+                </div>
+            </li>
+            <a href="#testimonials" class="nav-link">Reviews</a>
+            <a href="#contact" class="nav-link">Contact</a>
+            
+            <!-- Mobile-only CTA container link -->
+            <div class="nav-mobile-action">
                 <a href="#gallery" class="nav-action-btn">Explore</a>
             </div>
         </div>
-    </nav>
+
+        <!-- Standalone Desktop CTA anchor container -->
+        <div class="nav-desktop-actions">
+            <a href="#gallery" class="nav-action-btn">Explore</a>
+        </div>
+    </div>
+</nav>
+
 
     <section id="hero" class="hero-section">
         <div class="hero-wrapper">
@@ -1208,15 +1319,40 @@
             localStorage.setItem('me_newsletter_dismissed', 'true');
         }
 
-        function handleModalSubscription() {
-            const userEmail = document.getElementById('modal-email-input').value;
-            alert('Access request registered for: ' + userEmail);
-            closeNewsletterModal();
+        function handleModalSubscription(e) {
+            if (e) e.preventDefault();
+            
+            const emailInput = document.getElementById('modal-email-input');
+            const formData = new FormData();
+            formData.append('email', emailInput.value);
+
+            fetch('subscribe.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    alert(data.message);
+                    closeNewsletterModal();
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => {
+                alert('Connection to server failed. Please try again.');
+            });
         }
 
         // Initialize delayed trigger exactly 3 seconds after load cycle finishes
         window.addEventListener('DOMContentLoaded', () => {
             setTimeout(openNewsletterModal, 3000);
+            
+            // Wire the form submit button interceptor to handle our updated function
+            const modalForm = document.getElementById('newsletter-form');
+            if (modalForm) {
+                modalForm.addEventListener('submit', handleModalSubscription);
+            }
         });
 
         closeModalBtn.addEventListener('click', closeNewsletterModal);
@@ -1226,5 +1362,6 @@
             }
         });
     </script>
+
 </body>
 </html>
